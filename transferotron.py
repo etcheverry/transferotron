@@ -26,16 +26,17 @@ with tqdm(total=batch_size) as pbar:
 		sr_array.append(sr)
 		train_labels.append(data[cle]['instrument_family'])
 		#print(data[cle]['instrument_family'])
-		pbar.update(1)
-		cpt = cpt + 1
 		if cpt >= batch_size:
 			break
 
 X_train = np.asarray(y_array)
 X_train_new = np.memmap('features.myarray', dtype=np.float64, mode='w+', shape=(X_train.shape[0], 10, 50, int(X_train.shape[1]/50)))
-for i in range(X_train.shape[0]):
-	for j in range(10):
-		X_train_new[i][j] = numpy.reshape(X_train[i], (50, int(X_train.shape[1]/50)))
+
+with tqdm(total=X_train.shape[0]*10) as pbar:
+	for i in range(X_train.shape[0]):
+		for j in range(10):
+			X_train_new[i][j] = numpy.reshape(X_train[i], (50, int(X_train.shape[1]/50)))
+			pbar.update(1)
 
 X_train = X_train_new
 
