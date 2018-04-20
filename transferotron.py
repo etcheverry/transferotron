@@ -96,7 +96,7 @@ model.add(Activation('softmax'))
 model.compile(loss='categorical_crossentropy',optimizer='adam', metrics=["accuracy"])
 
 checkpointer = ModelCheckpoint("./models/model.h5", monitor='val_loss', verbose=0, save_best_only=False, save_weights_only=False, mode='auto', period=1)
-model.fit(X_train, Y_train, validation_split=0.3, epochs=1, batch_size=20, callbacks=[checkpointer])
+model.fit(X_train, Y_train, validation_split=0.3, epochs=60, batch_size=20, callbacks=[checkpointer])
 
 model.summary()
 
