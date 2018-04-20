@@ -26,6 +26,7 @@ with tqdm(total=batch_size) as pbar:
 		sr_array.append(sr)
 		train_labels.append(data[cle]['instrument_family'])
 		#print(data[cle]['instrument_family'])
+		pbar.update(1)
 		if cpt >= batch_size:
 			break
 
