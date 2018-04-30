@@ -42,7 +42,7 @@ y_array = []
 sr_array = []
 train_labels = []
 cpt = 0
-batch_size = len(data.keys())
+batch_size = 50#len(data.keys())
 with tqdm(total=batch_size) as pbar:
 	for cle in data.keys():
 		y, sr = librosa.load('./nsynth-valid/audio/'+ cle +'.wav')
@@ -69,19 +69,20 @@ model = load_model('model.h5')
 
 print(X_train.shape)
 
-output = []
-
+intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('conv2d_4').output)
+output = intermediate_layer_model.predict()
+'''
 cpt = 0
 with tqdm(total=batch_size) as pbar:
 	for cle in data.keys():
 		intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('conv2d_4').output)
 		tmp = X_train[cpt].reshape((1, X_train.shape[1], X_train.shape[2], X_train.shape[3]))
-		output.append(intermediate_layer_model.predict(tmp))
+		intermediate_layer_model.predict(tmp)
 		pbar.update(1)
 		cpt = cpt+1
 		if cpt >= batch_size:
 			break
-
+'''
 s_loss = []
 d = np.memmap('losses.myarray', dtype=np.float64, mode='w+', shape=(len(output), len(output)))
 
