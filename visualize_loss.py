@@ -14,8 +14,8 @@ from keras import backend as K
 from scipy.optimize import minimize, rosen, rosen_der
 
 def gram_matrix(x, k, k_prime):
-	a = x[0][k]
-	a_prime = x[0][k_prime]
+	a = x[k]
+	a_prime = x[k_prime]
 	G = 0
 	for i in range(0, a.shape[0]):
 		for j in range(0, a.shape[1]):
@@ -42,7 +42,7 @@ y_array = []
 sr_array = []
 train_labels = []
 cpt = 0
-batch_size = 50#len(data.keys())
+batch_size = len(data.keys())
 with tqdm(total=batch_size) as pbar:
 	for cle in data.keys():
 		y, sr = librosa.load('./nsynth-valid/audio/'+ cle +'.wav')
@@ -54,7 +54,7 @@ with tqdm(total=batch_size) as pbar:
 			break
 
 X_train = np.asarray(y_array)
-X_train_new = np.memmap('x_train.myarray', dtype=np.float64, mode='w+', shape=(X_train.shape[0], 10, 50, int(X_train.shape[1]/50)))
+X_train_new = np.memmap('/tmp/x_train.myarray', dtype=np.float64, mode='w+', shape=(X_train.shape[0], 10, 50, int(X_train.shape[1]/50)))
 
 with tqdm(total=X_train.shape[0]*10) as pbar:
 	for i in range(X_train.shape[0]):
@@ -70,7 +70,8 @@ model = load_model('model.h5')
 print(X_train.shape)
 
 intermediate_layer_model = Model(inputs=model.input, outputs=model.get_layer('conv2d_4').output)
-output = intermediate_layer_model.predict()
+output = intermediate_layer_model.predict(X_train)
+print(output.shape)
 '''
 cpt = 0
 with tqdm(total=batch_size) as pbar:
@@ -84,14 +85,14 @@ with tqdm(total=batch_size) as pbar:
 			break
 '''
 s_loss = []
-d = np.memmap('losses.myarray', dtype=np.float64, mode='w+', shape=(len(output), len(output)))
+d = np.memmap('/tmp/losses.myarray', dtype=np.float64, mode='w+', shape=(output.shape[0], output.shape[0]))
 
-with tqdm(total=len(output)*(len(output)+1)/2) as pbar:
-	for i in range(0, len(output)):
-		for j in range(i, len(output)):
-			channels = output[i].shape[1]
-			width = output[i].shape[2]
-			height = output[i].shape[3]
+with tqdm(total=output.shape[0]*(output.shape[0]+1)/2) as pbar:
+	for i in range(0, output.shape[0]):
+		for j in range(i, output.shape[0]):
+			channels = output.shape[1]
+			width = output.shape[2]
+			height = output.shape[3]
 			s_loss= style_loss(style_matrix(output[i]), style_matrix(output[j]), width, height, channels)
 			d[i][j] = s_loss
 			d[j][i] = s_loss
